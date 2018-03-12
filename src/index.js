@@ -1,6 +1,7 @@
 // @flow
 
 type Action = {
+  error?: Object | string,
   opts?: RequestOpts,
   params?: Object,
   response?: Object,
@@ -82,6 +83,8 @@ export default class Duck {
 
   beginAction = (state: Object) => ({ ...state, loading: true })
 
+  errorAction = (state: Object, { error }: Action) => ({ ...state, loading: false, error })
+
   successAction = (state: Object, action: Action) => {
     const storeParams = this.opts.storeParams ||
       (this.opts.initialState && !!this.opts.initialState.params)
@@ -99,10 +102,15 @@ export default class Duck {
 
   createActionHandlers() {
     const beginTypes = this.buildTypesArray(STATUSES.BEGIN)
+    const errorTypes = this.buildTypesArray(STATUSES.ERROR)
     const successTypes = this.buildTypesArray(STATUSES.SUCCESS)
 
     beginTypes.forEach((type) => {
       this.actionHandlers[type] = this.beginAction
+    })
+
+    errorTypes.forEach((type) => {
+      this.actionHandlers[type] = this.errorAction
     })
 
     successTypes.forEach((type) => {
@@ -112,11 +120,13 @@ export default class Duck {
 
   registerType(verb: string) {
     const customBegin = `[${this.name}] ${verb}: ${STATUSES.BEGIN}`
+    const customError = `[${this.name}] ${verb}: ${STATUSES.ERROR}`
     const customSuccess = `[${this.name}] ${verb}: ${STATUSES.SUCCESS}`
 
     this.actionHandlers = {
       ...this.actionHandlers,
       [customBegin]: this.beginAction,
+      [customError]: this.errorAction,
       [customSuccess]: this.successAction
     }
   }
@@ -140,6 +150,10 @@ export default class Duck {
         .then((response: any) => {
           dispatch({ type: `${type}: ${STATUSES.SUCCESS}`, response, opts, params })
           return response
+        })
+        .catch((error) => {
+          dispatch({ type: `${type}: ${STATUSES.ERROR}`, error, opts, params })
+          return error
         })
     }
   }
