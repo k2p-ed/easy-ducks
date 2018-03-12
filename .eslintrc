@@ -4,7 +4,7 @@
     "browser": true,
     "es6": true,
     "node": true,
-    "mocha": true
+    "jest/globals": true
   },
   "extends": [
     "airbnb",
@@ -13,7 +13,8 @@
     "plugin:flowtype/recommended"
   ],
   "plugins": [
-    "flowtype"
+    "flowtype",
+    "jest"
   ],
   "rules": {
     "comma-dangle": ["error", "never"],

@@ -1,6 +1,8 @@
 {
   "name": "redux-quack",
   "version": "0.1.0",
+  "description": "A utility to simplify the Redux modular duck pattern",
+  "author": "Knowledge to Practice <opensource@k2p.com> (http://www.knowledgetopractice.com/)",
   "license": "MIT",
   "private": false,
   "main": "lib/redux-quack.cjs.js",
@@ -14,7 +16,7 @@
     "prepublish": "build",
     "preversion": "ci",
     "start": "webpack-dev-server --config example/webpack.config.js --port 7000",
-    "test": "NODE_ENV=test mocha --require src/test/testHelper.js src/test/index.spec.js"
+    "test": "jest"
   },
   "devDependencies": {
     "axios": "^0.18.0",
@@ -34,11 +36,14 @@
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jest": "^21.14.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.4.0",
     "flow-bin": "^0.67.1",
     "html-webpack-plugin": "^3.0.6",
     "husky": "^0.14.3",
+    "jest": "^22.4.2",
+    "jest-fetch-mock": "^1.4.2",
     "normalize.css": "^8.0.0",
     "react": "^16.2.0",
     "react-content-loader": "^3.1.1",
@@ -46,6 +51,7 @@
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
     "redux": "^3.7.2",
+    "redux-mock-store": "^1.5.1",
     "redux-thunk": "^2.2.0",
     "rimraf": "^2.6.2",
     "rollup": "^0.56.5",
@@ -57,5 +63,11 @@
     "webpack": "^4.1.1",
     "webpack-cli": "^2.0.11",
     "webpack-dev-server": "^3.1.1"
+  },
+  "jest": {
+    "automock": false,
+    "setupFiles": [
+      "./src/test/testHelper.js"
+    ]
   }
 }

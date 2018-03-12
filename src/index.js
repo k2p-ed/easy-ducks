@@ -38,15 +38,6 @@ type RequestParams = RequestOpts & {
 
 type Status = 'BEGIN' | 'ERROR' | 'SUCCESS'
 
-const defaultPlugin = ({ baseUrl, method, path, params }) => fetch(`${baseUrl}${path}`, {
-  method: method.toUpperCase(),
-  body: params
-})
-  .then((response) => {
-    if (response.ok) return response.json()
-    return Promise.reject({ status: response.status, data: response.json() })
-  })
-
 const METHODS = {
   DELETE: 'delete',
   GET: 'get',
@@ -59,6 +50,15 @@ const STATUSES = {
   ERROR: 'ERROR',
   SUCCESS: 'SUCCESS'
 }
+
+const defaultPlugin = ({ baseUrl, method, path, params }) => fetch(`${baseUrl}${path}`, {
+  method: method.toUpperCase(),
+  body: params
+})
+  .then((response) => {
+    if (response.ok) return response.json()
+    return Promise.reject({ status: response.status, data: response.json() })
+  })
 
 export default class Duck {
   constructor(name: string, opts: InstanceOpts) {
