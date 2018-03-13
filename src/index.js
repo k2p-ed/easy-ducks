@@ -1,5 +1,7 @@
 // @flow
 
+import defaultPlugin from './plugins/fetch'
+
 type Action = {
   error?: Object | string,
   opts?: RequestOpts,
@@ -50,15 +52,6 @@ const STATUSES = {
   ERROR: 'ERROR',
   SUCCESS: 'SUCCESS'
 }
-
-const defaultPlugin = ({ baseUrl, method, path, params }) => fetch(`${baseUrl}${path}`, {
-  method: method.toUpperCase(),
-  body: params
-})
-  .then((response) => {
-    if (response.ok) return response.json()
-    return Promise.reject({ status: response.status, data: response.json() })
-  })
 
 export default class Duck {
   constructor(name: string, opts: InstanceOpts) {
@@ -140,7 +133,7 @@ export default class Duck {
   ) {
     if (verb) this.registerType(verb)
 
-    const plugin = this.opts.plugin || defaultPlugin
+    const plugin = this.opts.plugin || defaultPlugin()
     const type = `[${this.name}] ${verb || method.toUpperCase()}`
 
     return (dispatch: Dispatch): Promise<any> => {
