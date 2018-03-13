@@ -15,7 +15,7 @@ type Props = {
   loading: boolean
 }
 
-export class Breeds extends Component<Props> {
+class Breeds extends Component<Props> {
   componentDidMount() {
     this.props.fetchBreeds()
   }
@@ -27,7 +27,7 @@ export class Breeds extends Component<Props> {
 
     return (
       <div>
-        <Heading>Breeds</Heading>
+        <Heading>Dog Breeds</Heading>
         <p>Choose a breed below to see its sub breeds.</p>
         {breeds.map(breed => (
           <div key={breed}>

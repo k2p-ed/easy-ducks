@@ -22,7 +22,7 @@ type Props = {
   subBreeds: string[]
 }
 
-export class SubBreeds extends Component<Props> {
+class SubBreeds extends Component<Props> {
   componentDidMount() {
     this.props.fetchSubBreeds(this.props.match.params.breed)
   }
