@@ -84,6 +84,15 @@ describe('Duck', () => {
           expect(store.getActions()).toEqual(expectedActions)
         })
     })
+
+    it('should update the store with the response', () => {
+      const duck = new Duck('test', { baseUrl })
+      const type = '[test] GET: SUCCESS'
+      const response = { foo: 'bar' }
+      const result = duck.reducer({}, { type, response })
+
+      expect(result).toEqual({ foo: 'bar', didLoad: true, loading: false })
+    })
   })
 
   describe('when the request fails', () => {
@@ -103,9 +112,18 @@ describe('Duck', () => {
           expect(store.getActions()).toEqual(expectedActions)
         })
     })
+
+    it('should update the store with the error', () => {
+      const duck = new Duck('test', { baseUrl })
+      const type = '[test] GET: ERROR'
+      const error = new Error('fake error message')
+      const result = duck.reducer({}, { type, error })
+
+      expect(result).toEqual({ error, loading: false })
+    })
   })
 
-  describe('when a custom verb is specified', () => {
+  describe('when a custom verb is provided', () => {
     it('should dispatch the correct action types', () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
@@ -121,6 +139,30 @@ describe('Duck', () => {
         .then(() => {
           expect(store.getActions()).toEqual(expectedActions)
         })
+    })
+  })
+
+  describe('when a custom resolver is provided', () => {
+    it('should call the resolver with state and action arguments', () => {
+      const duck = new Duck('test', { baseUrl })
+      const type = '[test] GET: SUCCESS'
+      const response = { foo: 'bar' }
+      const resolver = jest.fn()
+      const action = { type, response, opts: { resolver } }
+      duck.reducer({}, action)
+
+      expect(resolver).toHaveBeenCalledWith({}, action)
+    })
+
+    it('should use the resolver function to update the store', () => {
+      const duck = new Duck('test', { baseUrl })
+      const type = '[test] GET: SUCCESS'
+      const response = { foo: 'bar' }
+      const resolver = (state, action) => ({ ...state, customKey: action.response })
+      const action = { type, response, opts: { resolver } }
+      const result = duck.reducer({}, action)
+
+      expect(result).toEqual({ customKey: response, didLoad: true, loading: false })
     })
   })
 })
