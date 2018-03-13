@@ -16,9 +16,9 @@
     "ci": "yarn test && yarn lint && yarn flow check",
     "copy-source": "cp src/index.js lib/easy-ducks.cjs.js.flow && cp src/index.js lib/easy-ducks.esm.js.flow",
     "lint": "eslint src",
-    "precommit": "ci",
-    "prepublish": "build",
-    "preversion": "ci",
+    "precommit": "yarn ci",
+    "prepublish": "yarn build",
+    "preversion": "yarn ci",
     "start": "webpack-dev-server --config example/webpack.config.js --port 7000",
     "test": "jest"
   },
