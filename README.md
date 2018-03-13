@@ -1,5 +1,6 @@
 # Easy Ducks
 
+[![travis build](https://img.shields.io/travis/k2p-ed/easy-ducks.svg?style=flat-square)](https://travis-ci.org/k2p-ed/easy-ducks)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 Easy Ducks is a utility that simplifies the implementation of the [ducks pattern](https://github.com/erikras/ducks-modular-redux) for async actions in Redux. It eliminates the need to manually create reducers (no more switch statements!) or action types, and greatly simplifies action creators.
