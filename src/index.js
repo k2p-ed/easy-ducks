@@ -88,7 +88,7 @@ export default class Duck {
   successAction = (state: Object, action: Action) => {
     const storeParams = this.opts.storeParams ||
       (this.opts.initialState && !!this.opts.initialState.params)
-    // $FlowFixMe
+    // $FlowFixMe - flow doesn't like this syntax
     const meta = { didLoad: true, loading: false, ...storeParams && { params: action.params } }
 
     return action.opts && action.opts.resolver
