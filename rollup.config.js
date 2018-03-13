@@ -14,16 +14,14 @@ const MAIN = {
 const AXIOS = {
   input: 'src/plugins/axios.js',
   output: [
-    { file: 'lib/plugins/axios.cjs.js', format: 'cjs' },
-    { file: 'lib/plugins/axios.esm.js', format: 'es' }
+    { file: 'lib/plugins/axios/index.js', format: 'cjs' }
   ]
 }
 
 const FETCH = {
   input: 'src/plugins/fetch.js',
   output: [
-    { file: 'lib/plugins/fetch.cjs.js', format: 'cjs' },
-    { file: 'lib/plugins/fetch.esm.js', format: 'es' }
+    { file: 'lib/plugins/fetch/index.js', format: 'cjs' }
   ]
 }
 
