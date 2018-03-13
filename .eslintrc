@@ -18,7 +18,6 @@
   ],
   "rules": {
     "comma-dangle": ["error", "never"],
-    "import/extensions": [2, { "js": "never", "jsx": "never"}],
     "import/no-extraneous-dependencies": 0,
     "jsx-quotes": ["error", "prefer-single"],
     "no-use-before-define": 0,

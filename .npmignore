@@ -2,6 +2,8 @@ src/
 .babelrc
 .editorconfig
 .eslintrc
+.flowconfig
 .gitignore
 .nvmrc
 rollup.config.js
+yarn.lock

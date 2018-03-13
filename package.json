@@ -3,14 +3,18 @@
   "version": "0.1.0",
   "description": "A utility to simplify the Redux modular duck pattern",
   "author": "Knowledge to Practice <opensource@k2p.com> (http://www.knowledgetopractice.com/)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/k2p-ed/easy-ducks"
+  },
   "license": "MIT",
   "private": false,
-  "main": "lib/redux-quack.cjs.js",
-  "module": "lib/redux-quack.esm.js",
+  "main": "lib/easy-ducks.cjs.js",
+  "module": "lib/easy-ducks.esm.js",
   "scripts": {
     "build": "rimraf lib && rollup -c && yarn copy-source",
     "ci": "yarn test && yarn lint && yarn flow check",
-    "copy-source": "cp src/index.js lib/redux-quack.cjs.js.flow && cp src/index.js lib/redux-quack.esm.js.flow",
+    "copy-source": "cp src/index.js lib/easy-ducks.cjs.js.flow && cp src/index.js lib/easy-ducks.esm.js.flow",
     "lint": "eslint src",
     "precommit": "ci",
     "prepublish": "build",
