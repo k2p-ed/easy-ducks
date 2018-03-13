@@ -151,7 +151,11 @@ const plugin = axiosPlugin({
 })
 ```
 
-Note: If you're using the `axios` plugin, you must have `axios` installed as a package dependency.
+Since `fetch` is used by default, you only need to explicitly provide the `fetch` plugin if you want to pass it a custom configuration object.
+
+Notes:
+- If you're using the `axios` plugin, you must have `axios` installed as a package dependency.
+- If you're using `fetch`, query params must be included directly in the `path` string.
 
 ### Writing Plugins
 
