@@ -1,9 +1,10 @@
 import axios from 'axios'
 
-export default ({ baseUrl, method, path, params }) => axios({
+export default (config = {}) => ({ baseUrl, method, path, params }) => axios({
   method,
   baseURL: baseUrl,
   url: path,
-  data: params
+  data: params,
+  ...config
 })
   .then(({ data }) => data)
