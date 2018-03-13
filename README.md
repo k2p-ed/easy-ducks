@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-Easy Ducks is a utility that simplifies the implementation of the [ducks pattern](https://github.com/erikras/ducks-modular-redux) for async actions in Redux. It eliminates the need to manually create reducers or action types, and greatly simplifies action creators.
+Easy Ducks is a utility that simplifies the implementation of the [ducks pattern](https://github.com/erikras/ducks-modular-redux) for async actions in Redux. It eliminates the need to manually create reducers (no more switch statements!) or action types, and greatly simplifies action creators.
 
 Easy Ducks automatically handles loading states by adding `loading` and `didLoad` keys to each reducer. When a request is in progress, `loading` will be true, and when a request has previously completed at some point, `didLoad` is set to true. This can be useful if you want to show a different loading state for when there is some pre-existing data, versus the initial load with no data.
 
@@ -64,12 +64,20 @@ The first constructor argument is a string indicating the name of the duck. The 
 
 The format for the generated action types looks like this:
 
-`[{name}] {METHOD}: {STATUS}`
+`[{name}] {method}: {status}`
 
-So, if you create a duck with the name `myDuck`, the `BEGIN` action for `duck.get()` would look like this:
+For example, if you create a duck with the name `myDuck`, the actions for `duck.get()` would look like this:
 
 ```js
+
+// GET begin
 { type: '[myDuck] GET: BEGIN' }
+
+// GET error
+{ type: '[myDuck] GET: ERROR', error }
+
+// GET success
+{ type: '[myDuck] GET: SUCCESS', response }
 ```
 
 The second constructor argument is an instance configuration object:
@@ -119,10 +127,10 @@ export const createUser = (params = {}) => duck.post('/something', {
 
 ## Plugins
 
-Easy ducks use the `fetch` API by default, but you can provide plugins if you'd like to use something else. Plugins for `axios` and `fetch` are included with the library.
+Easy Ducks uses `fetch` by default to make http requests, but you can provide plugins if you'd like to use something else. Plugins for `axios` and `fetch` are included with the library.
 
 ```js
-import axiosPlugin from 'easy-ducks/plugins/axios'
+import axiosPlugin from 'easy-ducks/lib/plugins/axios'
 
 const plugin = axiosPlugin()
 
@@ -143,6 +151,17 @@ const plugin = axiosPlugin({
 ```
 
 Note: If you're using the `axios` plugin, you must have `axios` installed as a package dependency.
+
+### Writing Plugins
+
+Plugins are simply functions that take an object and map the values to the http library of your choice. The object keys are:
+
+- `baseUrl` - The base URL of your API
+- `method` - e.g., `delete`, `get`, `post`, `put`
+- `path` - The remainder of the request endpoint after `baseUrl`
+- `params` - An object containing request data
+
+Take a look at the plugins in the `src/plugins` directory for some examples.
 
 ## Example Project
 
