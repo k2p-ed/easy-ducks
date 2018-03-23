@@ -19,7 +19,7 @@ type InstanceOpts = {
   storeParams?: boolean
 }
 
-type Method = 'delete' | 'get' | 'post' | 'put'
+type Method = $Values<typeof METHODS>
 
 type PluginParams = {
   baseUrl: string,
@@ -38,20 +38,20 @@ type RequestParams = RequestOpts & {
   verb?: string
 }
 
-type Status = 'BEGIN' | 'ERROR' | 'SUCCESS'
+type Status = $Values<typeof STATUSES>
 
-const METHODS = {
+const METHODS = Object.freeze({
   DELETE: 'delete',
   GET: 'get',
   POST: 'post',
   PUT: 'put'
-}
+})
 
-const STATUSES = {
+const STATUSES = Object.freeze({
   BEGIN: 'BEGIN',
   ERROR: 'ERROR',
   SUCCESS: 'SUCCESS'
-}
+})
 
 export default class Duck {
   constructor(name: string, opts: InstanceOpts) {
@@ -62,6 +62,7 @@ export default class Duck {
 
     this.initialState = {
       ...initialState,
+      error: null,
       didLoad: false,
       loading: false
     }
