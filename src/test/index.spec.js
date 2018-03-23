@@ -108,7 +108,7 @@ describe('Duck', () => {
       fetch.mockReject(error)
 
       return store.dispatch(duck.get(path))
-        .then(() => {
+        .catch(() => {
           expect(store.getActions()).toEqual(expectedActions)
         })
     })

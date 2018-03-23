@@ -146,7 +146,7 @@ export default class Duck {
         })
         .catch((error) => {
           dispatch({ type: `${type}: ${STATUSES.ERROR}`, error, opts, params })
-          return error
+          return Promise.reject(error)
         })
     }
   }
