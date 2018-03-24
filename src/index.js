@@ -58,10 +58,8 @@ export default class Duck {
     this.name = name
     this.opts = opts
 
-    const initialState = opts.initialState || {}
-
     this.initialState = {
-      ...initialState,
+      ...opts.initialState || {},
       error: null,
       didLoad: false,
       loading: false
@@ -90,8 +88,12 @@ export default class Duck {
       : { ...state, ...action.response, ...meta }
   }
 
+  buildTypeString(verb: string, status: Status) {
+    return `[${this.name}] ${verb}: ${status}`
+  }
+
   buildTypesArray(status: Status) {
-    return Object.keys(METHODS).map(method => `[${this.name}] ${method.toUpperCase()}: ${status}`)
+    return Object.keys(METHODS).map(method => this.buildTypeString(method.toUpperCase(), status))
   }
 
   createActionHandlers() {
@@ -100,22 +102,22 @@ export default class Duck {
     const successTypes = this.buildTypesArray(STATUSES.SUCCESS)
 
     beginTypes.forEach((type) => {
-      this.actionHandlers[type] = this.beginAction
+      this.actionHandlers = { ...this.actionHandlers, [type]: this.beginAction }
     })
 
     errorTypes.forEach((type) => {
-      this.actionHandlers[type] = this.errorAction
+      this.actionHandlers = { ...this.actionHandlers, [type]: this.errorAction }
     })
 
     successTypes.forEach((type) => {
-      this.actionHandlers[type] = this.successAction
+      this.actionHandlers = { ...this.actionHandlers, [type]: this.successAction }
     })
   }
 
   registerType(verb: string) {
-    const customBegin = `[${this.name}] ${verb}: ${STATUSES.BEGIN}`
-    const customError = `[${this.name}] ${verb}: ${STATUSES.ERROR}`
-    const customSuccess = `[${this.name}] ${verb}: ${STATUSES.SUCCESS}`
+    const customBegin = this.buildTypeString(verb, STATUSES.BEGIN)
+    const customError = this.buildTypeString(verb, STATUSES.ERROR)
+    const customSuccess = this.buildTypeString(verb, STATUSES.SUCCESS)
 
     this.actionHandlers = {
       ...this.actionHandlers,
@@ -161,19 +163,23 @@ export default class Duck {
 
   // Methods
 
-  delete(path: string, { params, verb, ...opts }: RequestParams = {}) {
-    return this.request(METHODS.DELETE, path, params, verb, opts)
+  baseMethod(method: Method, path: string, { params, verb, ...opts }: RequestParams = {}) {
+    return this.request(method, path, params, verb, opts)
   }
 
-  get(path: string, { params, verb, ...opts }: RequestParams = {}) {
-    return this.request(METHODS.GET, path, params, verb, opts)
+  delete(path: string, opts: RequestParams) {
+    return this.baseMethod(METHODS.DELETE, path, opts)
   }
 
-  post(path: string, { params, verb, ...opts }: RequestParams = {}) {
-    return this.request(METHODS.POST, path, params, verb, opts)
+  get(path: string, opts: RequestParams) {
+    return this.baseMethod(METHODS.GET, path, opts)
   }
 
-  put(path: string, { params, verb, ...opts }: RequestParams = {}) {
-    return this.request(METHODS.PUT, path, params, verb, opts)
+  post(path: string, opts: RequestParams) {
+    return this.baseMethod(METHODS.POST, path, opts)
+  }
+
+  put(path: string, opts: RequestParams) {
+    return this.baseMethod(METHODS.PUT, path, opts)
   }
 }
