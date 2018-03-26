@@ -119,6 +119,8 @@ The second request argument is an optional configuration object:
 | Name         | Type     | Required | Description |
 |--------------|----------|----------|---------|
 | actionModifiers | object | false | Allows for modifying the dispatched action. |
+| onError     | function | false | Callback function for request error |
+| onSuccess   | function | false | Callback function for request success
 | params      | object   | false     | Contains any parameters to be passed with the request. |
 | resolver | function   | false    | Allows custom handling of responses |
 | verb       | string | false    | Specifies an alternate verb to use in the action type. Defaults to the http method, e.g. `get`, `post`, etc. |
@@ -139,6 +141,33 @@ const fetchUser = id => duck.get(`/users/${id}`, {
   actionModifiers: (response) => ({
     analytics: trackEvent('viewed user', { id, name: response.name })
   })
+})
+```
+
+## Callbacks
+
+The dispatch function returns a promise, so if you want to perform actions after the request's success or failure you can do so inside a `.then` block.
+
+For example, if you wanted to save a response to local storage on success:
+
+```js
+import localStorage from 'store'
+
+store.dispatch(fetchUser(1))
+  .then((response) => {
+    localStorage.set('user', response)
+  })
+```
+
+Sometimes you may want to perform some action inside the action creator itself. For this scenario there are two optional callbacks, `onSuccess` and `onError`. These callbacks receive `response` and `error`, respectively, as arguments.
+
+Using these callbacks, the example above would look like this:
+
+```js
+export const fetchUser = id => duck.get(`/users/${id}`, {
+  onSuccess: (response) => {
+    localStorage.set('user', response)
+  }
 })
 ```
 

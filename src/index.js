@@ -34,6 +34,8 @@ type RequestOpts = {
     error: (error: any) => Object,
     success: (response: any) => Object
   },
+  onError?: (error: any) => any,
+  onSuccess?: (response: any) => any,
   resolver?: (state: Object, action: Action) => Object
 }
 
@@ -143,19 +145,23 @@ export default class Duck {
 
     const actionType = `[${this.name}] ${verb || method.toUpperCase()}`
     const plugin = this.opts.plugin || defaultPlugin()
-    const { actionModifiers: modifiers = {}, ...opts } = requestOpts
+    const { actionModifiers: modifiers = {}, onError, onSuccess, ...opts } = requestOpts
 
     return (dispatch: Dispatch): Promise<any> => {
       dispatch({ type: `${actionType}: ${STATUSES.BEGIN}`, ...modifiers.begin && modifiers.begin() })
 
       return plugin({ baseUrl: this.opts.baseUrl, method, path, params })
         .then((response: any) => {
+          if (onSuccess) onSuccess(response)
+
           const type = `${actionType}: ${STATUSES.SUCCESS}`
 
           dispatch({ type, response, opts, params, ...modifiers.success && modifiers.success(response) })
           return response
         })
         .catch((error) => {
+          if (onError) onError(error)
+
           const type = `${actionType}: ${STATUSES.ERROR}`
 
           dispatch({ type, error, ...modifiers.error && modifiers.error(error) })

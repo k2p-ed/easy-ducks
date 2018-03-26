@@ -93,6 +93,38 @@ describe('Duck', () => {
 
       expect(result).toEqual({ foo: 'bar', didLoad: true, loading: false })
     })
+
+    describe('when a onSuccess callback is provided', () => {
+      it('should execute the onSuccess callback', () => {
+        const store = mockStore()
+        const duck = new Duck('test', { baseUrl })
+        const response = { foo: 'bar' }
+        const onSuccess = jest.fn()
+
+        fetch.mockResponse(JSON.stringify(response))
+
+        return store.dispatch(duck.get(path, { onSuccess }))
+          .then(() => {
+            expect(onSuccess).toHaveBeenCalledWith(response)
+          })
+      })
+    })
+
+    describe('when a onError callback is provided', () => {
+      it('should execute the onSuccess callback', () => {
+        const store = mockStore()
+        const duck = new Duck('test', { baseUrl })
+        const error = new Error('test-error')
+        const onError = jest.fn()
+
+        fetch.mockReject(error)
+
+        return store.dispatch(duck.get(path, { onError }))
+          .catch(() => {
+            expect(onError).toHaveBeenCalledWith(error)
+          })
+      })
+    })
   })
 
   describe('when the request fails', () => {
