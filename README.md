@@ -19,6 +19,16 @@ Easy Ducks assumes you're using [redux-thunk](https://github.com/gaearon/redux-t
 
 The default configuration relies on the [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), so you may need to provide a polyfill for extended browser support. Alternatively, you can use plugins to support other http implementations.
 
+## Installation
+
+```sh
+yarn add easy-ducks
+
+# or
+
+npm install --save easy-ducks
+```
+
 ## Quick Start
 
 First create your duck and export the reducer:
@@ -70,7 +80,6 @@ The format for the generated action types looks like this:
 For example, if you create a duck with the name `myDuck`, the actions for `duck.get()` would look like this:
 
 ```js
-
 // GET begin
 { type: '[myDuck] GET: BEGIN' }
 
