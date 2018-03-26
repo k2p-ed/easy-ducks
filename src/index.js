@@ -29,6 +29,11 @@ type PluginParams = {
 }
 
 type RequestOpts = {
+  actionModifiers?: {
+    begin: () => Object,
+    error: (error: any) => Object,
+    success: (response: any) => Object
+  },
   resolver?: (state: Object, action: Action) => Object
 }
 
@@ -132,23 +137,28 @@ export default class Duck {
     path: string,
     params?: Object = {},
     verb?: string,
-    opts: RequestOpts = {}
+    requestOpts: RequestOpts = {}
   ) {
     if (verb) this.registerType(verb)
 
+    const actionType = `[${this.name}] ${verb || method.toUpperCase()}`
     const plugin = this.opts.plugin || defaultPlugin()
-    const type = `[${this.name}] ${verb || method.toUpperCase()}`
+    const { actionModifiers: modifiers = {}, ...opts } = requestOpts
 
     return (dispatch: Dispatch): Promise<any> => {
-      dispatch({ type: `${type}: ${STATUSES.BEGIN}` })
+      dispatch({ type: `${actionType}: ${STATUSES.BEGIN}`, ...modifiers.begin && modifiers.begin() })
 
       return plugin({ baseUrl: this.opts.baseUrl, method, path, params })
         .then((response: any) => {
-          dispatch({ type: `${type}: ${STATUSES.SUCCESS}`, response, opts, params })
+          const type = `${actionType}: ${STATUSES.SUCCESS}`
+
+          dispatch({ type, response, opts, params, ...modifiers.success && modifiers.success(response) })
           return response
         })
         .catch((error) => {
-          dispatch({ type: `${type}: ${STATUSES.ERROR}`, error, opts, params })
+          const type = `${actionType}: ${STATUSES.ERROR}`
+
+          dispatch({ type, error, ...modifiers.error && modifiers.error(error) })
           return Promise.reject(error)
         })
     }

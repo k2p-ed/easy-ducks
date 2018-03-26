@@ -85,10 +85,10 @@ The second constructor argument is an instance configuration object:
 
 | Name         | Type     | Required | Default | Description |
 |--------------|----------|----------|---------|---------|
-| `baseUrl`      | string   | true     |         | The base url for your api |
-| `initialState` | object   | false    |         | The default value to be passed to the reducer |
-| `plugin`       | function | false    |         | Allows for http implementations other than `fetch` |
-| `storeParams`  | boolean  | false    | false   | Tells Easy Ducks to save any params passed to a request in the reducer |
+| baseUrl      | string   | true     |         | The base url for your api |
+| initialState | object   | false    |         | The default value to be passed to the reducer |
+| plugin       | function | false    |         | Allows for http implementations other than `fetch` |
+| storeParams  | boolean  | false    | false   | Tells Easy Ducks to save any params passed to a request in the reducer |
 
 As an alternative to `storeParams`, you can include a `params` object in the `initialState`:
 
@@ -109,9 +109,29 @@ The second request argument is an optional configuration object:
 
 | Name         | Type     | Required | Description |
 |--------------|----------|----------|---------|
-| `params`      | object   | false     | Contains any parameters to be passed with the request. |
-| `resolver` | function   | false    | Allows custom handling of responses |
-| `verb`       | string | false    | Specifies an alternate verb to use in the action type. Defaults to the http method, e.g. `get`, `post`, etc. |
+| actionModifiers | object | false | Allows for modifying the dispatched action. |
+| params      | object   | false     | Contains any parameters to be passed with the request. |
+| resolver | function   | false    | Allows custom handling of responses |
+| verb       | string | false    | Specifies an alternate verb to use in the action type. Defaults to the http method, e.g. `get`, `post`, etc. |
+
+## Action Modifiers
+
+Action modifiers are functions that allow you to modify the object that is passed to the `dispatch` function. You can provide a modifier for each of the three statuses: `begin`, `success`, and `error`.
+
+- `begin`: no arguments
+- `success`: receives the response as an argument
+- `error`: receives the error as an argument
+
+This functionality can be useful if you're using some type of redux analytics middleware, such as [redux-segment](https://github.com/rangle/redux-segment) to track events based on redux actions.
+
+In this example, the `analytics` key would be added to the object passed to `dispatch`:
+```js
+const fetchUser = id => duck.get(`/users/${id}`, {
+  actionModifiers: (response) => ({
+    analytics: trackEvent('viewed user', { id, name: response.name })
+  })
+})
+```
 
 ## Resolvers
 

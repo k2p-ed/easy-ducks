@@ -20,6 +20,7 @@
     "comma-dangle": ["error", "never"],
     "import/no-extraneous-dependencies": 0,
     "jsx-quotes": ["error", "prefer-single"],
+    "max-len": ["error", 120],
     "no-use-before-define": 0,
     "react/jsx-filename-extension": [2, { "extensions": [".js"] }],
     "react/sort-comp": 0,

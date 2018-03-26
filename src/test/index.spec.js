@@ -102,7 +102,7 @@ describe('Duck', () => {
       const error = new Error('fake error message')
       const expectedActions = [
         { type: '[test] GET: BEGIN' },
-        { type: '[test] GET: ERROR', opts: {}, params: {}, error }
+        { type: '[test] GET: ERROR', error }
       ]
 
       fetch.mockReject(error)
@@ -163,6 +163,64 @@ describe('Duck', () => {
       const result = duck.reducer({}, action)
 
       expect(result).toEqual({ customKey: response, didLoad: true, loading: false })
+    })
+  })
+
+  describe('when a "begin" action modifier is provided', () => {
+    it('should dispatch the correct action', () => {
+      const store = mockStore()
+      const duck = new Duck('test', { baseUrl })
+
+      fetch.mockResponse(JSON.stringify({}))
+
+      return store.dispatch(duck.get(path, {
+        actionModifiers: {
+          begin: () => ({ foo: 'bar' })
+        }
+      }))
+        .then(() => {
+          expect(store.getActions()[0]).toEqual({ type: '[test] GET: BEGIN', foo: 'bar' })
+        })
+    })
+  })
+
+  describe('when a "error" action modifier is provided', () => {
+    it('should dispatch the correct action', () => {
+      const store = mockStore()
+      const duck = new Duck('test', { baseUrl })
+      const error = new Error('fake error message')
+
+      fetch.mockReject(error)
+
+      return store.dispatch(duck.get(path, {
+        actionModifiers: {
+          error: () => ({ foo: 'bar' })
+        }
+      }))
+        .catch(() => {
+          expect(store.getActions()[1]).toEqual({ type: '[test] GET: ERROR', foo: 'bar', error })
+        })
+    })
+  })
+
+  describe('when a "success" action modifier is provided', () => {
+    it('should dispatch the correct action', () => {
+      const store = mockStore()
+      const duck = new Duck('test', { baseUrl })
+      const mockResponse = { foo: 'bar' }
+
+      fetch.mockResponse(JSON.stringify(mockResponse))
+
+      return store.dispatch(duck.get(path, {
+        actionModifiers: {
+          success: response => ({ foo: response.foo })
+        }
+      }))
+        .then(() => {
+          const type = '[test] GET: SUCCESS'
+          const expected = { type, response: mockResponse, opts: {}, params: {}, foo: 'bar' }
+          expect(store.getActions()[1]).toEqual(expected)
+        })
     })
   })
 })
