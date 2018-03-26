@@ -15,60 +15,56 @@ describe('Duck', () => {
     fetch.resetMocks()
   })
 
-  it('should make a DELETE request to the correct url', () => {
+  it('should make a DELETE request to the correct url', async () => {
     const store = mockStore()
     const duck = new Duck('test', { baseUrl })
 
     fetch.mockResponse(JSON.stringify({}))
 
-    return store.dispatch(duck.delete(path))
-      .then(() => {
-        expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body: {}, method: 'DELETE' })
-        expect(store.getActions()[0]).toEqual({ type: '[test] DELETE: BEGIN' })
-      })
+    await store.dispatch(duck.delete(path))
+
+    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body: {}, method: 'DELETE' })
+    expect(store.getActions()[0]).toEqual({ type: '[test] DELETE: BEGIN' })
   })
 
-  it('should make a GET request to the correct url', () => {
+  it('should make a GET request to the correct url', async () => {
     const store = mockStore()
     const duck = new Duck('test', { baseUrl })
 
     fetch.mockResponse(JSON.stringify({}))
 
-    return store.dispatch(duck.get(path))
-      .then(() => {
-        expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body: {}, method: 'GET' })
-        expect(store.getActions()[0]).toEqual({ type: '[test] GET: BEGIN' })
-      })
+    await store.dispatch(duck.get(path))
+
+    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body: {}, method: 'GET' })
+    expect(store.getActions()[0]).toEqual({ type: '[test] GET: BEGIN' })
   })
 
-  it('should make a POST request to the correct url', () => {
+  it('should make a POST request to the correct url', async () => {
     const store = mockStore()
     const duck = new Duck('test', { baseUrl })
 
     fetch.mockResponse(JSON.stringify({}))
 
-    return store.dispatch(duck.post(path, { params: body }))
-      .then(() => {
-        expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body, method: 'POST' })
-        expect(store.getActions()[0]).toEqual({ type: '[test] POST: BEGIN' })
-      })
+    await store.dispatch(duck.post(path, { params: body }))
+
+    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body, method: 'POST' })
+    expect(store.getActions()[0]).toEqual({ type: '[test] POST: BEGIN' })
   })
 
-  it('should make a PUT request to the correct url', () => {
+  it('should make a PUT request to the correct url', async () => {
     const store = mockStore()
     const duck = new Duck('test', { baseUrl })
 
     fetch.mockResponse(JSON.stringify({}))
 
-    return store.dispatch(duck.put(path, { params: body }))
-      .then(() => {
-        expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body, method: 'PUT' })
-        expect(store.getActions()[0]).toEqual({ type: '[test] PUT: BEGIN' })
-      })
+    await store.dispatch(duck.put(path, { params: body }))
+
+    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body, method: 'PUT' })
+    expect(store.getActions()[0]).toEqual({ type: '[test] PUT: BEGIN' })
   })
 
   describe('when the request is successful', () => {
-    it('should dispatch the correct actions', () => {
+    it('should dispatch the correct actions', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
       const response = { foo: 'bar' }
@@ -79,10 +75,9 @@ describe('Duck', () => {
 
       fetch.mockResponse(JSON.stringify(response))
 
-      return store.dispatch(duck.get(path))
-        .then(() => {
-          expect(store.getActions()).toEqual(expectedActions)
-        })
+      await store.dispatch(duck.get(path))
+
+      expect(store.getActions()).toEqual(expectedActions)
     })
 
     it('should update the store with the response', () => {
@@ -95,7 +90,7 @@ describe('Duck', () => {
     })
 
     describe('when a onSuccess callback is provided', () => {
-      it('should execute the onSuccess callback', () => {
+      it('should execute the onSuccess callback', async () => {
         const store = mockStore()
         const duck = new Duck('test', { baseUrl })
         const response = { foo: 'bar' }
@@ -103,32 +98,15 @@ describe('Duck', () => {
 
         fetch.mockResponse(JSON.stringify(response))
 
-        return store.dispatch(duck.get(path, { onSuccess }))
-          .then(() => {
-            expect(onSuccess).toHaveBeenCalledWith(response)
-          })
-      })
-    })
+        await store.dispatch(duck.get(path, { onSuccess }))
 
-    describe('when a onError callback is provided', () => {
-      it('should execute the onSuccess callback', () => {
-        const store = mockStore()
-        const duck = new Duck('test', { baseUrl })
-        const error = new Error('test-error')
-        const onError = jest.fn()
-
-        fetch.mockReject(error)
-
-        return store.dispatch(duck.get(path, { onError }))
-          .catch(() => {
-            expect(onError).toHaveBeenCalledWith(error)
-          })
+        expect(onSuccess).toHaveBeenCalledWith(response, store.getState)
       })
     })
   })
 
   describe('when the request fails', () => {
-    it('should dispatch the correct actions', () => {
+    it('should dispatch the correct actions', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
       const error = new Error('fake error message')
@@ -139,10 +117,11 @@ describe('Duck', () => {
 
       fetch.mockReject(error)
 
-      return store.dispatch(duck.get(path))
-        .catch(() => {
-          expect(store.getActions()).toEqual(expectedActions)
-        })
+      try {
+        await store.dispatch(duck.get(path))
+      } catch (e) {
+        expect(store.getActions()).toEqual(expectedActions)
+      }
     })
 
     it('should update the store with the error', () => {
@@ -153,10 +132,27 @@ describe('Duck', () => {
 
       expect(result).toEqual({ error, loading: false })
     })
+
+    describe('when a onError callback is provided', () => {
+      it('should execute the onError callback', async () => {
+        const store = mockStore()
+        const duck = new Duck('test', { baseUrl })
+        const error = new Error('test-error')
+        const onError = jest.fn()
+
+        fetch.mockReject(error)
+
+        try {
+          await store.dispatch(duck.get(path, { onError }))
+        } catch (e) {
+          expect(onError).toHaveBeenCalledWith(error, store.getState)
+        }
+      })
+    })
   })
 
   describe('when a custom verb is provided', () => {
-    it('should dispatch the correct action types', () => {
+    it('should dispatch the correct action types', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
       const response = { foo: 'bar' }
@@ -167,10 +163,9 @@ describe('Duck', () => {
 
       fetch.mockResponse(JSON.stringify(response))
 
-      return store.dispatch(duck.get(path, { verb: 'FOO' }))
-        .then(() => {
-          expect(store.getActions()).toEqual(expectedActions)
-        })
+      await store.dispatch(duck.get(path, { verb: 'FOO' }))
+
+      expect(store.getActions()).toEqual(expectedActions)
     })
   })
 
@@ -202,57 +197,56 @@ describe('Duck', () => {
     it('should dispatch the correct action', () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
+      const begin = jest.fn().mockReturnValue({ foo: 'bar' })
 
       fetch.mockResponse(JSON.stringify({}))
 
-      return store.dispatch(duck.get(path, {
-        actionModifiers: {
-          begin: () => ({ foo: 'bar' })
-        }
+      store.dispatch(duck.get(path, {
+        actionModifiers: { begin }
       }))
-        .then(() => {
-          expect(store.getActions()[0]).toEqual({ type: '[test] GET: BEGIN', foo: 'bar' })
-        })
+
+      expect(begin).toHaveBeenCalledWith(store.getState)
+      expect(store.getActions()[0]).toEqual({ type: '[test] GET: BEGIN', foo: 'bar' })
     })
   })
 
   describe('when a "error" action modifier is provided', () => {
-    it('should dispatch the correct action', () => {
+    it('should dispatch the correct action', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
-      const error = new Error('fake error message')
+      const mockError = new Error('fake error message')
+      const error = jest.fn().mockReturnValue({ foo: 'bar' })
 
-      fetch.mockReject(error)
+      fetch.mockReject(mockError)
 
-      return store.dispatch(duck.get(path, {
-        actionModifiers: {
-          error: () => ({ foo: 'bar' })
-        }
-      }))
-        .catch(() => {
-          expect(store.getActions()[1]).toEqual({ type: '[test] GET: ERROR', foo: 'bar', error })
-        })
+      try {
+        await store.dispatch(duck.get(path, {
+          actionModifiers: { error }
+        }))
+      } catch (e) {
+        expect(error).toHaveBeenCalledWith(mockError, store.getState)
+        expect(store.getActions()[1]).toEqual({ type: '[test] GET: ERROR', foo: 'bar', error: mockError })
+      }
     })
   })
 
   describe('when a "success" action modifier is provided', () => {
-    it('should dispatch the correct action', () => {
+    it('should dispatch the correct action', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
       const mockResponse = { foo: 'bar' }
+      const success = jest.fn().mockReturnValue(mockResponse)
+      const type = '[test] GET: SUCCESS'
+      const expected = { type, response: mockResponse, opts: {}, params: {}, foo: 'bar' }
 
       fetch.mockResponse(JSON.stringify(mockResponse))
 
-      return store.dispatch(duck.get(path, {
-        actionModifiers: {
-          success: response => ({ foo: response.foo })
-        }
+      await store.dispatch(duck.get(path, {
+        actionModifiers: { success }
       }))
-        .then(() => {
-          const type = '[test] GET: SUCCESS'
-          const expected = { type, response: mockResponse, opts: {}, params: {}, foo: 'bar' }
-          expect(store.getActions()[1]).toEqual(expected)
-        })
+
+      expect(success).toHaveBeenCalledWith(mockResponse, store.getState)
+      expect(store.getActions()[1]).toEqual(expected)
     })
   })
 })

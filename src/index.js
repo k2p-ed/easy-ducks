@@ -12,6 +12,8 @@ type Action = {
 
 type Dispatch = (action: Action) => any
 
+type GetState = () => Object
+
 type InstanceOpts = {
   baseUrl: string,
   initialState?: { params?: ?Object },
@@ -30,12 +32,12 @@ type PluginParams = {
 
 type RequestOpts = {
   actionModifiers?: {
-    begin: () => Object,
-    error: (error: any) => Object,
-    success: (response: any) => Object
+    begin: (getState: GetState) => Object,
+    error: (error: any, getState: GetState) => Object,
+    success: (response: any, getState: GetState) => Object
   },
-  onError?: (error: any) => any,
-  onSuccess?: (response: any) => any,
+  onError?: (error: any, getState: GetState) => any,
+  onSuccess?: (response: any, getState: GetState) => any,
   resolver?: (state: Object, action: Action) => Object
 }
 
@@ -147,24 +149,24 @@ export default class Duck {
     const plugin = this.opts.plugin || defaultPlugin()
     const { actionModifiers: modifiers = {}, onError, onSuccess, ...opts } = requestOpts
 
-    return (dispatch: Dispatch): Promise<any> => {
-      dispatch({ type: `${actionType}: ${STATUSES.BEGIN}`, ...modifiers.begin && modifiers.begin() })
+    return (dispatch: Dispatch, getState: GetState): Promise<any> => {
+      dispatch({ type: `${actionType}: ${STATUSES.BEGIN}`, ...modifiers.begin && modifiers.begin(getState) })
 
       return plugin({ baseUrl: this.opts.baseUrl, method, path, params })
         .then((response: any) => {
-          if (onSuccess) onSuccess(response)
+          if (onSuccess) onSuccess(response, getState)
 
           const type = `${actionType}: ${STATUSES.SUCCESS}`
 
-          dispatch({ type, response, opts, params, ...modifiers.success && modifiers.success(response) })
+          dispatch({ type, response, opts, params, ...modifiers.success && modifiers.success(response, getState) })
           return response
         })
         .catch((error) => {
-          if (onError) onError(error)
+          if (onError) onError(error, getState)
 
           const type = `${actionType}: ${STATUSES.ERROR}`
 
-          dispatch({ type, error, ...modifiers.error && modifiers.error(error) })
+          dispatch({ type, error, ...modifiers.error && modifiers.error(error, getState) })
           return Promise.reject(error)
         })
     }

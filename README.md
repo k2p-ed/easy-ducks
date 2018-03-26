@@ -116,31 +116,35 @@ The first request argument is `path`, which is a string that indicates the remai
 
 The second request argument is an optional configuration object:
 
-| Name         | Type     | Required | Description |
-|--------------|----------|----------|---------|
-| actionModifiers | object | false | Allows for modifying the dispatched action. |
-| onError     | function | false | Callback function for request error |
-| onSuccess   | function | false | Callback function for request success
-| params      | object   | false     | Contains any parameters to be passed with the request. |
-| resolver | function   | false    | Allows custom handling of responses |
-| verb       | string | false    | Specifies an alternate verb to use in the action type. Defaults to the http method, e.g. `get`, `post`, etc. |
+| Name         | Type     | Required | Description | Arguments |
+|--------------|----------|----------|-------------|-----------|
+| actionModifiers | object | false | Allows for modifying the dispatched action. | |
+| onError     | function | false | Callback function for request error | `error`, &nbsp;`getState` |
+| onSuccess   | function | false | Callback function for request success | `success`, &nbsp;`getState`
+| params      | object   | false     | Contains any parameters to be passed with the request. | |
+| resolver | function   | false    | Allows custom handling of responses | `state`, &nbsp;`action` | |
+| verb       | string | false    | Specifies an alternate verb to use in the action type. Defaults to the http method, e.g. `get`, `post`, etc. | |
 
 ## Action Modifiers
 
 Action modifiers are functions that allow you to modify the object that is passed to the `dispatch` function. You can provide a modifier for each of the three statuses: `begin`, `success`, and `error`.
 
-- `begin`: no arguments
-- `success`: receives the response as an argument
-- `error`: receives the error as an argument
+| Modifier | Arguments |
+|-----|-----------|
+| begin | `getState` |
+| success | `response`, &nbsp;`getState` |
+| error | `error`, &nbsp;`getState` |
 
 This functionality can be useful if you're using some type of redux analytics middleware, such as [redux-segment](https://github.com/rangle/redux-segment) to track events based on redux actions.
 
 In this example, the `analytics` key would be added to the object passed to `dispatch`:
 ```js
 const fetchUser = id => duck.get(`/users/${id}`, {
-  actionModifiers: (response) => ({
-    analytics: trackEvent('viewed user', { id, name: response.name })
-  })
+  actionModifiers: {
+    success: (response) => ({
+      meta: trackEvent('viewed user', { id, name: response.name })
+    })
+  }
 })
 ```
 
