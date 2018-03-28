@@ -16,7 +16,7 @@ const SubBreedList = styled.div`
 `
 
 type Props = {
-  fetchSubBreeds: (breed: string) => Promise<Object>,
+  fetchSubBreeds: typeof fetchSubBreeds,
   loading: boolean,
   match: Match,
   subBreeds: string[]

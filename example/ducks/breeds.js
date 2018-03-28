@@ -1,8 +1,8 @@
-import Duck from '../../src/'
+// @flow
 
-const duck = new Duck('breeds', {
-  baseUrl: 'https://dog.ceo/api'
-})
+import duckFactory from '../duckFactory'
+
+const duck = duckFactory.create('breeds')
 
 export default duck.reducer
 
@@ -12,6 +12,6 @@ export const fetchBreeds = () => duck.get('/breeds/list')
 
 const baseSelector = state => state.breeds
 
-export const selectBreeds = state => baseSelector(state).message || []
+export const selectBreeds = (state: Object) => baseSelector(state).message || []
 
-export const selectIfLoading = state => baseSelector(state).loading
+export const selectIfLoading = (state: Object) => baseSelector(state).loading

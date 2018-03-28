@@ -1,7 +1,7 @@
 import configureStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
 
-import Duck from '../'
+import Duck, { DuckFactory } from '../'
 
 const middlewares = [thunk]
 const mockStore = configureStore(middlewares)
@@ -23,7 +23,7 @@ describe('Duck', () => {
 
     await store.dispatch(duck.delete(path))
 
-    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body: {}, method: 'DELETE' })
+    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { method: 'DELETE' })
     expect(store.getActions()[0]).toEqual({ type: '[test] DELETE: BEGIN' })
   })
 
@@ -35,7 +35,7 @@ describe('Duck', () => {
 
     await store.dispatch(duck.get(path))
 
-    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body: {}, method: 'GET' })
+    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { method: 'GET' })
     expect(store.getActions()[0]).toEqual({ type: '[test] GET: BEGIN' })
   })
 
@@ -70,7 +70,7 @@ describe('Duck', () => {
       const response = { foo: 'bar' }
       const expectedActions = [
         { type: '[test] GET: BEGIN' },
-        { type: '[test] GET: SUCCESS', opts: {}, params: {}, response }
+        { type: '[test] GET: SUCCESS', opts: {}, response }
       ]
 
       fetch.mockResponse(JSON.stringify(response))
@@ -100,7 +100,8 @@ describe('Duck', () => {
 
         await store.dispatch(duck.get(path, { onSuccess }))
 
-        expect(onSuccess).toHaveBeenCalledWith(response, store.getState)
+        // TODO: figure out how to assert that was called with dispatch as first argument
+        expect(onSuccess).toHaveBeenCalledWith(expect.anything(), store.getState, response)
       })
     })
   })
@@ -145,7 +146,8 @@ describe('Duck', () => {
         try {
           await store.dispatch(duck.get(path, { onError }))
         } catch (e) {
-          expect(onError).toHaveBeenCalledWith(error, store.getState)
+          // TODO: figure out how to assert that was called with dispatch as first argument
+          expect(onError).toHaveBeenCalledWith(expect.anything(), store.getState, error)
         }
       })
     })
@@ -158,7 +160,7 @@ describe('Duck', () => {
       const response = { foo: 'bar' }
       const expectedActions = [
         { type: '[test] FOO: BEGIN' },
-        { type: '[test] FOO: SUCCESS', opts: {}, params: {}, response }
+        { type: '[test] FOO: SUCCESS', opts: {}, response }
       ]
 
       fetch.mockResponse(JSON.stringify(response))
@@ -237,7 +239,7 @@ describe('Duck', () => {
       const mockResponse = { foo: 'bar' }
       const success = jest.fn().mockReturnValue(mockResponse)
       const type = '[test] GET: SUCCESS'
-      const expected = { type, response: mockResponse, opts: {}, params: {}, foo: 'bar' }
+      const expected = { type, response: mockResponse, opts: {}, foo: 'bar' }
 
       fetch.mockResponse(JSON.stringify(mockResponse))
 
@@ -247,6 +249,36 @@ describe('Duck', () => {
 
       expect(success).toHaveBeenCalledWith(mockResponse, store.getState)
       expect(store.getActions()[1]).toEqual(expected)
+    })
+  })
+
+  describe('when global config options are defined', () => {
+    const globalBaseUrl = 'test-global-baseUrl'
+    const duckFactory = new DuckFactory({ baseUrl: globalBaseUrl })
+
+    it('should use the global config options', async () => {
+      const store = mockStore()
+      const duck = duckFactory.create()
+
+      fetch.mockResponse(JSON.stringify({}))
+
+      await store.dispatch(duck.get(path))
+
+      expect(fetch).toHaveBeenCalledWith(`${globalBaseUrl}${path}`, { method: 'GET' })
+    })
+
+    describe('and when instance options are defined', () => {
+      it('should override the global config options', async () => {
+        const store = mockStore()
+        const localBaseUrl = 'test-local-baseUrl'
+        const duck = duckFactory.create('test', { baseUrl: localBaseUrl })
+
+        fetch.mockResponse(JSON.stringify({}))
+
+        await store.dispatch(duck.get(path))
+
+        expect(fetch).toHaveBeenCalledWith(`${localBaseUrl}${path}`, { method: 'GET' })
+      })
     })
   })
 })

@@ -1,3 +1,5 @@
+// @flow
+
 import Duck from '../../src/'
 
 const duck = new Duck('subBreeds', {
@@ -6,12 +8,12 @@ const duck = new Duck('subBreeds', {
 
 export default duck.reducer
 
-export const fetchSubBreeds = breed => duck.get(`/breed/${breed}/list`)
+export const fetchSubBreeds = (breed: string) => duck.get(`/breed/${breed}/list`)
 
 // Selectors
 
 const baseSelector = state => state.subBreeds
 
-export const selectSubBreeds = state => baseSelector(state).message || []
+export const selectSubBreeds = (state: Object) => baseSelector(state).message || []
 
-export const selectIfLoading = state => baseSelector(state).loading
+export const selectIfLoading = (state: Object) => baseSelector(state).loading

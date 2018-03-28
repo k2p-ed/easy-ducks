@@ -2,8 +2,12 @@ const HtmlWebPackPlugin = require('html-webpack-plugin')
 const { resolve } = require('path')
 
 module.exports = {
+  devtool: 'cheap-module-eval-source-map',
+
   entry: [resolve(__dirname, './index.js')],
+
   mode: 'development',
+
   module: {
     rules: [
       {
@@ -20,9 +24,10 @@ module.exports = {
         }, {
           loader: 'css-loader'
         }]
-      },
+      }
     ]
   },
+
   plugins: [
     new HtmlWebPackPlugin({
       template: resolve(__dirname, './index.ejs'),

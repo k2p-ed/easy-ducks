@@ -11,7 +11,7 @@ import { fetchBreeds, selectBreeds, selectIfLoading } from '../../ducks/breeds'
 
 type Props = {
   breeds: string[],
-  fetchBreeds: () => Promise<Object>,
+  fetchBreeds: typeof fetchBreeds,
   loading: boolean
 }
 

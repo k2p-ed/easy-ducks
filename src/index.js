@@ -1,74 +1,31 @@
 // @flow
 
+import { methods, statuses } from './constants'
 import defaultPlugin from './plugins/fetch'
 
-type Action = {
-  error?: Object | string,
-  opts?: RequestOpts,
-  params?: Object,
-  response?: Object,
-  type: string
+import type {
+  Action, Config, Dispatch, GetState, Method,
+  RequestParams, State, Status, ThunkAction
+} from './types'
+
+export class DuckFactory {
+  constructor(config: Config) {
+    this.config = config
+  }
+
+  config = {}
+
+  create(name: string, opts?: Config) {
+    return new Duck(name, { ...this.config, ...(opts || {}) })
+  }
 }
-
-type Dispatch = (action: Action) => any
-
-type GetState = () => Object
-
-type InstanceOpts = {
-  baseUrl: string,
-  initialState?: { params?: ?Object },
-  plugin?: (params: PluginParams) => Promise<any>,
-  storeParams?: boolean
-}
-
-type Method = $Values<typeof METHODS>
-
-type PluginParams = {
-  baseUrl: string,
-  method: Method,
-  path: string,
-  params: ?Object
-}
-
-type RequestOpts = {
-  actionModifiers?: {
-    begin: (getState: GetState) => Object,
-    error: (error: any, getState: GetState) => Object,
-    success: (response: any, getState: GetState) => Object
-  },
-  onError?: (error: any, getState: GetState) => any,
-  onSuccess?: (response: any, getState: GetState) => any,
-  resolver?: (state: Object, action: Action) => Object
-}
-
-type RequestParams = RequestOpts & {
-  opts?: RequestOpts,
-  params?: Object,
-  verb?: string
-}
-
-type Status = $Values<typeof STATUSES>
-
-const METHODS = Object.freeze({
-  DELETE: 'delete',
-  GET: 'get',
-  POST: 'post',
-  PUT: 'put'
-})
-
-const STATUSES = Object.freeze({
-  BEGIN: 'BEGIN',
-  ERROR: 'ERROR',
-  SUCCESS: 'SUCCESS'
-})
 
 export default class Duck {
-  constructor(name: string, opts: InstanceOpts) {
-    this.name = name
+  constructor(name: string, opts: Config) {
     this.opts = opts
-
+    this.name = name
     this.initialState = {
-      ...opts.initialState || {},
+      ...this.opts.initialState || {},
       error: null,
       didLoad: false,
       loading: false
@@ -78,71 +35,70 @@ export default class Duck {
   }
 
   actionHandlers = {}
+
   initialState = {}
+
   name = ''
+
   opts = {}
 
-  beginAction = (state: Object) => ({ ...state, loading: true })
+  actions = {
+    begin: (state: State) => ({ ...state, loading: true }),
+    error: (state: State, { error }: Action) => ({ ...state, loading: false, error }),
+    success: (state: State, action: Action) => {
+      const storeParams = this.opts.storeParams || (!!this.opts.initialState && !!this.opts.initialState.params)
+      const meta = {
+        didLoad: true,
+        loading: false,
+        ...(storeParams ? { params: action.params } : {})
+      }
 
-  errorAction = (state: Object, { error }: Action) => ({ ...state, loading: false, error })
-
-  successAction = (state: Object, action: Action) => {
-    const storeParams = this.opts.storeParams ||
-      (this.opts.initialState && !!this.opts.initialState.params)
-    // $FlowFixMe - flow doesn't like this syntax
-    const meta = { didLoad: true, loading: false, ...storeParams && { params: action.params } }
-
-    return action.opts && action.opts.resolver
-      ? { ...action.opts.resolver(state, action), ...meta }
-      : { ...state, ...action.response, ...meta }
+      return action.opts && action.opts.resolver
+        ? { ...action.opts.resolver(state, action), ...meta }
+        : { ...state, ...action.response, ...meta }
+    }
   }
 
   buildTypeString(verb: string, status: Status) {
     return `[${this.name}] ${verb}: ${status}`
   }
 
-  buildTypesArray(status: Status) {
-    return Object.keys(METHODS).map(method => this.buildTypeString(method.toUpperCase(), status))
+  buildTypesArray(status: Status): string[] {
+    return Object.keys(methods).map(method => this.buildTypeString(method, status))
   }
 
   createActionHandlers() {
-    const beginTypes = this.buildTypesArray(STATUSES.BEGIN)
-    const errorTypes = this.buildTypesArray(STATUSES.ERROR)
-    const successTypes = this.buildTypesArray(STATUSES.SUCCESS)
+    const beginTypes = this.buildTypesArray(statuses.BEGIN)
+    const errorTypes = this.buildTypesArray(statuses.ERROR)
+    const successTypes = this.buildTypesArray(statuses.SUCCESS)
 
     beginTypes.forEach((type) => {
-      this.actionHandlers = { ...this.actionHandlers, [type]: this.beginAction }
+      this.actionHandlers = { ...this.actionHandlers, [type]: this.actions.begin }
     })
 
     errorTypes.forEach((type) => {
-      this.actionHandlers = { ...this.actionHandlers, [type]: this.errorAction }
+      this.actionHandlers = { ...this.actionHandlers, [type]: this.actions.error }
     })
 
     successTypes.forEach((type) => {
-      this.actionHandlers = { ...this.actionHandlers, [type]: this.successAction }
+      this.actionHandlers = { ...this.actionHandlers, [type]: this.actions.success }
     })
   }
 
   registerType(verb: string) {
-    const customBegin = this.buildTypeString(verb, STATUSES.BEGIN)
-    const customError = this.buildTypeString(verb, STATUSES.ERROR)
-    const customSuccess = this.buildTypeString(verb, STATUSES.SUCCESS)
+    const customBegin = this.buildTypeString(verb, statuses.BEGIN)
+    const customError = this.buildTypeString(verb, statuses.ERROR)
+    const customSuccess = this.buildTypeString(verb, statuses.SUCCESS)
 
     this.actionHandlers = {
       ...this.actionHandlers,
-      [customBegin]: this.beginAction,
-      [customError]: this.errorAction,
-      [customSuccess]: this.successAction
+      [customBegin]: this.actions.begin,
+      [customError]: this.actions.error,
+      [customSuccess]: this.actions.success
     }
   }
 
-  request(
-    method: Method,
-    path: string,
-    params?: Object = {},
-    verb?: string,
-    requestOpts: RequestOpts = {}
-  ) {
+  request(method: Method, path: string, { params, verb, ...requestOpts }: RequestParams = {}): ThunkAction {
     if (verb) this.registerType(verb)
 
     const actionType = `[${this.name}] ${verb || method.toUpperCase()}`
@@ -150,54 +106,59 @@ export default class Duck {
     const { actionModifiers: modifiers = {}, onError, onSuccess, ...opts } = requestOpts
 
     return (dispatch: Dispatch, getState: GetState): Promise<any> => {
-      dispatch({ type: `${actionType}: ${STATUSES.BEGIN}`, ...modifiers.begin && modifiers.begin(getState) })
+      dispatch({ type: `${actionType}: ${statuses.BEGIN}`, ...modifiers.begin && modifiers.begin(getState) })
 
       return plugin({ baseUrl: this.opts.baseUrl, method, path, params })
         .then((response: any) => {
-          if (onSuccess) onSuccess(response, getState)
+          if (onSuccess) onSuccess(dispatch, getState, response)
 
-          const type = `${actionType}: ${STATUSES.SUCCESS}`
+          const type = `${actionType}: ${statuses.SUCCESS}`
 
-          dispatch({ type, response, opts, params, ...modifiers.success && modifiers.success(response, getState) })
+          dispatch({
+            opts,
+            params,
+            response,
+            type,
+            ...modifiers.success && modifiers.success(response, getState)
+          })
+
           return response
         })
         .catch((error) => {
-          if (onError) onError(error, getState)
+          if (onError) onError(dispatch, getState, error)
 
-          const type = `${actionType}: ${STATUSES.ERROR}`
+          const type = `${actionType}: ${statuses.ERROR}`
 
-          dispatch({ type, error, ...modifiers.error && modifiers.error(error, getState) })
+          dispatch({
+            type,
+            error,
+            ...modifiers.error && modifiers.error(error, getState)
+          })
+
           return Promise.reject(error)
         })
     }
   }
 
-  reducer = (state: Object = this.initialState, action: Action) => {
+  reducer = (state: State = this.initialState, action: Action) => {
     const handler = this.actionHandlers[action.type]
 
-    if (handler) return handler(state, action)
-    return state
+    return handler ? handler(state, action) : state
   }
 
-  // Methods
-
-  baseMethod(method: Method, path: string, { params, verb, ...opts }: RequestParams = {}) {
-    return this.request(method, path, params, verb, opts)
+  delete(path: string, opts?: RequestParams) {
+    return this.request(methods.DELETE, path, opts)
   }
 
-  delete(path: string, opts: RequestParams) {
-    return this.baseMethod(METHODS.DELETE, path, opts)
+  get(path: string, opts?: RequestParams) {
+    return this.request(methods.GET, path, opts)
   }
 
-  get(path: string, opts: RequestParams) {
-    return this.baseMethod(METHODS.GET, path, opts)
+  post(path: string, opts?: RequestParams) {
+    return this.request(methods.POST, path, opts)
   }
 
-  post(path: string, opts: RequestParams) {
-    return this.baseMethod(METHODS.POST, path, opts)
-  }
-
-  put(path: string, opts: RequestParams) {
-    return this.baseMethod(METHODS.PUT, path, opts)
+  put(path: string, opts?: RequestParams) {
+    return this.request(methods.PUT, path, opts)
   }
 }

@@ -125,6 +125,38 @@ The second request argument is an optional configuration object:
 | resolver | function   | false    | Allows custom handling of responses | `state`, &nbsp;`action` | |
 | verb       | string | false    | Specifies an alternate verb to use in the action type. Defaults to the http method, e.g. `get`, `post`, etc. | |
 
+
+### Global configuration
+
+This package provides a named export called `DuckFactory` to simplify re-use of configuration values across all duck instances.
+
+```js
+// duckFactory.js
+
+import { DuckFactory } from 'easy-ducks'
+
+import plugin from 'utils/myPlugin'
+
+const duckFactory = new DuckFactory({
+  baseUrl: 'https://my-api.com/api',
+  plugin
+})
+
+export default duckFactory
+```
+
+Now import this instance into your individual duck files and create new ducks from that. Ducks created using this method will inherit any configuration options that you previously specified.
+
+```js
+import duckFactory from '../duckFactory'
+
+const duck = duckFactory.create('users')
+
+export default duck.reducer
+
+export const getUsers = () => duck.get('/users')
+```
+
 ## Action Modifiers
 
 Action modifiers are functions that allow you to modify the object that is passed to the `dispatch` function. You can provide a modifier for each of the three statuses: `begin`, `success`, and `error`.
@@ -148,7 +180,7 @@ const fetchUser = id => duck.get(`/users/${id}`, {
 })
 ```
 
-## Callbacks
+### Callbacks
 
 The dispatch function returns a promise, so if you want to perform actions after the request's success or failure you can do so inside a `.then` block.
 
@@ -175,7 +207,7 @@ export const fetchUser = id => duck.get(`/users/${id}`, {
 })
 ```
 
-## Resolvers
+### Resolvers
 
 Resolvers are functions that allow you to define custom behavior for updating the store. Resolvers take the same arguments as the reducer itself, `state` and `action`, and return the new state on request success.
 
@@ -188,7 +220,7 @@ export const createUser = (params = {}) => duck.post('/something', {
 })
 ```
 
-## Plugins
+### Plugins
 
 Easy Ducks uses `fetch` by default to make http requests, but you can provide plugins if you'd like to use something else. Plugins for `axios` and `fetch` are included with the library.
 
@@ -219,7 +251,7 @@ Notes:
 - If you're using the `axios` plugin, you must have `axios` installed as a package dependency.
 - If you're using `fetch`, query params must be included directly in the `path` string.
 
-### Writing Plugins
+#### Writing Plugins
 
 Plugins are simply functions that take an object and map the values to the http library of your choice. The object keys are:
 
