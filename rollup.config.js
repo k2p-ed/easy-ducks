@@ -32,14 +32,13 @@ const COMMON = {
       babelrc: false,
       exclude: ['node_modules/**'],
       plugins: [
-        'external-helpers',
-        'transform-flow-strip-types'
+        '@babel/proposal-class-properties',
+        '@babel/transform-flow-strip-types'
       ],
       presets: [
-        'react',
-        ['env', { modules: false }],
-        'stage-0',
-        'flow'
+        '@babel/react',
+        ['@babel/env', { modules: false }],
+        '@babel/flow'
       ]
     }),
     commonjs()
