@@ -1,5 +1,5 @@
 [ignore]
-./lib/.*
+<PROJECT_ROOT>/lib/.*
 .*\.spec\.js
 
 [include]
@@ -9,5 +9,6 @@
 [lints]
 
 [options]
+esproposal.optional_chaining=enable
 
 [strict]

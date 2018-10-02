@@ -4,7 +4,8 @@ module.exports = function (api) {
   api.cache(true)
 
   const plugins = [
-    '@babel/proposal-class-properties'
+    '@babel/plugin-proposal-class-properties',
+    '@babel/plugin-proposal-optional-chaining'
   ]
 
   const presets = [

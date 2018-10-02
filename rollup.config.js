@@ -32,8 +32,9 @@ const COMMON = {
       babelrc: false,
       exclude: ['node_modules/**'],
       plugins: [
-        '@babel/proposal-class-properties',
-        '@babel/transform-flow-strip-types'
+        '@babel/plugin-proposal-class-properties',
+        '@babel/plugin-proposal-optional-chaining',
+        '@babel/plugin-transform-flow-strip-types'
       ],
       presets: [
         '@babel/react',
