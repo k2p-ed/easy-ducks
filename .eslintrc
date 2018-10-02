@@ -12,6 +12,9 @@
     "plugin:import/warnings",
     "plugin:flowtype/recommended"
   ],
+  "globals": {
+    "context": true
+  },
   "plugins": [
     "flowtype",
     "jest"

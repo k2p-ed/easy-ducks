@@ -1,6 +1,6 @@
 {
   "name": "easy-ducks",
-  "version": "1.3.0",
+  "version": "1.2.0",
   "description": "A utility to simplify the Redux modular duck pattern",
   "author": "Knowledge to Practice <opensource@k2p.com> (http://www.knowledgetopractice.com/)",
   "repository": {
@@ -50,6 +50,7 @@
     "husky": "^1.1.0",
     "jest": "^23.6.0",
     "jest-fetch-mock": "^1.6.6",
+    "jest-plugin-context": "^2.9.0",
     "normalize.css": "^8.0.0",
     "react": "^16.5.2",
     "react-content-loader": "^3.1.1",
@@ -78,7 +79,8 @@
   "jest": {
     "automock": false,
     "setupFiles": [
-      "./src/test/testHelper.js"
+      "./src/test/testHelper.js",
+      "jest-plugin-context/setup"
     ]
   },
   "keywords": [
