@@ -154,6 +154,10 @@ export default class Duck {
     return this.request(methods.GET, path, opts)
   }
 
+  patch(path: string, opts?: RequestParams) {
+    return this.request(methods.PATCH, path, opts)
+  }
+
   post(path: string, opts?: RequestParams) {
     return this.request(methods.POST, path, opts)
   }
