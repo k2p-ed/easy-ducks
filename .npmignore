@@ -1,9 +1,12 @@
+coverage/
+example/
 src/
-.babelrc
 .editorconfig
 .eslintrc
 .flowconfig
 .gitignore
 .nvmrc
+babel.config.js
 rollup.config.js
+yarn-error.log
 yarn.lock

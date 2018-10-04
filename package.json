@@ -1,6 +1,6 @@
 {
   "name": "easy-ducks",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "A utility to simplify the Redux modular duck pattern",
   "author": "Knowledge to Practice <opensource@k2p.com> (http://www.knowledgetopractice.com/)",
   "repository": {
