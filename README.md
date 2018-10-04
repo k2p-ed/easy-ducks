@@ -36,7 +36,7 @@ First create your duck and export the reducer:
 ```js
 // ducks/users.js
 
-import Duck from 'easy-ducks'
+import { Duck } from 'easy-ducks'
 
 const duck = new Duck('myDuck', {
   baseUrl: 'https://myapi.com/api'

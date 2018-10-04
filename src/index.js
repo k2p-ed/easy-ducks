@@ -20,7 +20,7 @@ export class DuckFactory {
   }
 }
 
-export default class Duck {
+export class Duck {
   constructor(name: string, opts: Config) {
     this.opts = opts
     this.name = name
@@ -46,7 +46,7 @@ export default class Duck {
     begin: (state: State) => ({ ...state, loading: true }),
     error: (state: State, { error }: Action) => ({ ...state, loading: false, error }),
     success: (state: State, action: Action) => {
-      const storeParams = this.opts.storeParams || (!!this.opts.initialState && !!this.opts.initialState.params)
+      const storeParams = this.opts.storeParams || !!this.opts.initialState?.params
       const meta = {
         didLoad: true,
         loading: false,
@@ -103,22 +103,32 @@ export default class Duck {
 
     const actionType = `[${this.name}] ${verb || method.toUpperCase()}`
     const plugin = this.opts.plugin || defaultPlugin()
-    const { actionModifiers: modifiers = {}, onError, onSuccess, ...opts } = requestOpts
+    const {
+      actionModifiers: modifiers = {},
+      onError,
+      onSuccess,
+      ...opts
+    } = requestOpts
 
     return (dispatch: Dispatch, getState: GetState): Promise<any> => {
       dispatch({ type: `${actionType}: ${statuses.BEGIN}`, ...modifiers.begin && modifiers.begin(getState) })
 
-      return plugin({ baseUrl: this.opts.baseUrl, method, path, params })
+      return plugin({
+        baseUrl: this.opts.baseUrl,
+        method,
+        path,
+        params
+      })
         .then((response: any) => {
           if (onSuccess) onSuccess(dispatch, getState, response)
 
           const type = `${actionType}: ${statuses.SUCCESS}`
 
           dispatch({
-            opts,
-            params,
             response,
             type,
+            opts,
+            ...(params ? { params } : {}),
             ...modifiers.success && modifiers.success(response, getState)
           })
 

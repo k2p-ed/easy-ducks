@@ -1,8 +1,11 @@
 # Changelog
 
-## [1.3.0]
-- Added the ability to define global configuration options using the `config` static method.
-- The `getState` method is now passed to action modifiers and request callback functions (`onSuccess` and `onError`).
+## [2.0.0]
+- Added a `DuckFactory` named export, which allows for creating ducks that share the same base configuration.
+- [BREAKING]: The default export has been replaced with a named export `Duck`.
+- [BREAKING]: `dispatch` is now passed to the `onSuccess` and `onError` callbacks as the first argument. The new signature is `(dispatch, getState, [response, error])`.
+- Improvements to the fetch plugin
+- Improved flow type support
 
 ## [1.2.0]
 - Added `onSuccess` and `onError` request options.

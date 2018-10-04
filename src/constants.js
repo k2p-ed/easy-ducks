@@ -3,6 +3,7 @@
 export const methods = Object.freeze({
   DELETE: 'delete',
   GET: 'get',
+  PATCH: 'patch',
   POST: 'post',
   PUT: 'put'
 })

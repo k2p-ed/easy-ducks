@@ -1,6 +1,6 @@
 // @flow
 
-import Duck from '../../src/'
+import { Duck } from '../../src'
 
 const duck = new Duck('subBreeds', {
   baseUrl: 'https://dog.ceo/api'

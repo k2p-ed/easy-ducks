@@ -1,7 +1,7 @@
 import configureStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
 
-import Duck, { DuckFactory } from '../'
+import { Duck, DuckFactory } from '..'
 
 const middlewares = [thunk]
 const mockStore = configureStore(middlewares)
@@ -10,76 +10,113 @@ describe('Duck', () => {
   const baseUrl = 'test-baseUrl'
   const path = 'test-path'
   const body = { foo: 'bar' }
+  const mockResponse = { mock: 'response' }
 
   beforeEach(() => {
     fetch.resetMocks()
   })
 
-  it('should make a DELETE request to the correct url', async () => {
+  it('should dispatch the correct actions for a DELETE request', async () => {
     const store = mockStore()
     const duck = new Duck('test', { baseUrl })
 
-    fetch.mockResponse(JSON.stringify({}))
-
+    fetch.mockResponse(JSON.stringify(mockResponse))
     await store.dispatch(duck.delete(path))
 
-    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { method: 'DELETE' })
-    expect(store.getActions()[0]).toEqual({ type: '[test] DELETE: BEGIN' })
+    const actions = store.getActions()
+
+    expect(actions[0]).toEqual({
+      type: '[test] DELETE: BEGIN'
+    })
+    expect(actions[1]).toEqual({
+      opts: {},
+      type: '[test] DELETE: SUCCESS',
+      response: mockResponse
+    })
   })
 
-  it('should make a GET request to the correct url', async () => {
+  it('should dispatch the correct actions for a GET request', async () => {
     const store = mockStore()
     const duck = new Duck('test', { baseUrl })
 
-    fetch.mockResponse(JSON.stringify({}))
-
+    fetch.mockResponse(JSON.stringify(mockResponse))
     await store.dispatch(duck.get(path))
 
-    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { method: 'GET' })
-    expect(store.getActions()[0]).toEqual({ type: '[test] GET: BEGIN' })
+    const actions = store.getActions()
+
+    expect(actions[0]).toEqual({
+      type: '[test] GET: BEGIN'
+    })
+    expect(actions[1]).toEqual({
+      opts: {},
+      type: '[test] GET: SUCCESS',
+      response: mockResponse
+    })
   })
 
-  it('should make a POST request to the correct url', async () => {
+  it('should dispatch the correct actions for a PATCH request', async () => {
     const store = mockStore()
     const duck = new Duck('test', { baseUrl })
 
-    fetch.mockResponse(JSON.stringify({}))
+    fetch.mockResponse(JSON.stringify(mockResponse))
 
+    await store.dispatch(duck.patch(path, { params: body }))
+
+    const actions = store.getActions()
+
+    expect(actions[0]).toEqual({
+      type: '[test] PATCH: BEGIN'
+    })
+    expect(actions[1]).toEqual({
+      opts: {},
+      params: { ...body },
+      type: '[test] PATCH: SUCCESS',
+      response: mockResponse
+    })
+  })
+
+  it('should dispatch the correct actions for a POST request', async () => {
+    const store = mockStore()
+    const duck = new Duck('test', { baseUrl })
+
+    fetch.mockResponse(JSON.stringify(mockResponse))
     await store.dispatch(duck.post(path, { params: body }))
 
-    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body, method: 'POST' })
-    expect(store.getActions()[0]).toEqual({ type: '[test] POST: BEGIN' })
+    const actions = store.getActions()
+
+    expect(actions[0]).toEqual({
+      type: '[test] POST: BEGIN'
+    })
+    expect(actions[1]).toEqual({
+      opts: {},
+      params: { ...body },
+      type: '[test] POST: SUCCESS',
+      response: mockResponse
+    })
   })
 
-  it('should make a PUT request to the correct url', async () => {
+  it('should dispatch the correct actions for a PUT request', async () => {
     const store = mockStore()
     const duck = new Duck('test', { baseUrl })
 
-    fetch.mockResponse(JSON.stringify({}))
+    fetch.mockResponse(JSON.stringify(mockResponse))
 
     await store.dispatch(duck.put(path, { params: body }))
 
-    expect(fetch).toHaveBeenCalledWith(`${baseUrl}${path}`, { body, method: 'PUT' })
-    expect(store.getActions()[0]).toEqual({ type: '[test] PUT: BEGIN' })
+    const actions = store.getActions()
+
+    expect(actions[0]).toEqual({
+      type: '[test] PUT: BEGIN'
+    })
+    expect(actions[1]).toEqual({
+      opts: {},
+      params: { ...body },
+      type: '[test] PUT: SUCCESS',
+      response: mockResponse
+    })
   })
 
-  describe('when the request is successful', () => {
-    it('should dispatch the correct actions', async () => {
-      const store = mockStore()
-      const duck = new Duck('test', { baseUrl })
-      const response = { foo: 'bar' }
-      const expectedActions = [
-        { type: '[test] GET: BEGIN' },
-        { type: '[test] GET: SUCCESS', opts: {}, response }
-      ]
-
-      fetch.mockResponse(JSON.stringify(response))
-
-      await store.dispatch(duck.get(path))
-
-      expect(store.getActions()).toEqual(expectedActions)
-    })
-
+  context('when the request is successful', () => {
     it('should update the store with the response', () => {
       const duck = new Duck('test', { baseUrl })
       const type = '[test] GET: SUCCESS'
@@ -89,7 +126,7 @@ describe('Duck', () => {
       expect(result).toEqual({ foo: 'bar', didLoad: true, loading: false })
     })
 
-    describe('when a onSuccess callback is provided', () => {
+    context('when a onSuccess callback is provided', () => {
       it('should execute the onSuccess callback', async () => {
         const store = mockStore()
         const duck = new Duck('test', { baseUrl })
@@ -106,7 +143,7 @@ describe('Duck', () => {
     })
   })
 
-  describe('when the request fails', () => {
+  context('when the request fails', () => {
     it('should dispatch the correct actions', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
@@ -134,7 +171,7 @@ describe('Duck', () => {
       expect(result).toEqual({ error, loading: false })
     })
 
-    describe('when a onError callback is provided', () => {
+    context('when a onError callback is provided', () => {
       it('should execute the onError callback', async () => {
         const store = mockStore()
         const duck = new Duck('test', { baseUrl })
@@ -153,7 +190,7 @@ describe('Duck', () => {
     })
   })
 
-  describe('when a custom verb is provided', () => {
+  context('when a custom verb is provided', () => {
     it('should dispatch the correct action types', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
@@ -171,7 +208,7 @@ describe('Duck', () => {
     })
   })
 
-  describe('when a custom resolver is provided', () => {
+  context('when a custom resolver is provided', () => {
     it('should call the resolver with state and action arguments', () => {
       const duck = new Duck('test', { baseUrl })
       const type = '[test] GET: SUCCESS'
@@ -195,7 +232,7 @@ describe('Duck', () => {
     })
   })
 
-  describe('when a "begin" action modifier is provided', () => {
+  context('when a "begin" action modifier is provided', () => {
     it('should dispatch the correct action', () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
@@ -212,7 +249,7 @@ describe('Duck', () => {
     })
   })
 
-  describe('when a "error" action modifier is provided', () => {
+  context('when a "error" action modifier is provided', () => {
     it('should dispatch the correct action', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
@@ -232,14 +269,17 @@ describe('Duck', () => {
     })
   })
 
-  describe('when a "success" action modifier is provided', () => {
+  context('when a "success" action modifier is provided', () => {
     it('should dispatch the correct action', async () => {
       const store = mockStore()
       const duck = new Duck('test', { baseUrl })
-      const mockResponse = { foo: 'bar' }
       const success = jest.fn().mockReturnValue(mockResponse)
-      const type = '[test] GET: SUCCESS'
-      const expected = { type, response: mockResponse, opts: {}, foo: 'bar' }
+      const expected = {
+        ...mockResponse,
+        opts: {},
+        type: '[test] GET: SUCCESS',
+        response: mockResponse
+      }
 
       fetch.mockResponse(JSON.stringify(mockResponse))
 
@@ -252,7 +292,7 @@ describe('Duck', () => {
     })
   })
 
-  describe('when global config options are defined', () => {
+  context('when global config options are defined', () => {
     const globalBaseUrl = 'test-global-baseUrl'
     const duckFactory = new DuckFactory({ baseUrl: globalBaseUrl })
 
@@ -260,14 +300,17 @@ describe('Duck', () => {
       const store = mockStore()
       const duck = duckFactory.create()
 
-      fetch.mockResponse(JSON.stringify({}))
+      fetch.mockResponse(JSON.stringify(mockResponse))
 
       await store.dispatch(duck.get(path))
 
-      expect(fetch).toHaveBeenCalledWith(`${globalBaseUrl}${path}`, { method: 'GET' })
+      expect(fetch).toHaveBeenCalledWith(`${globalBaseUrl}${path}`, {
+        method: 'GET',
+        headers: new Headers({})
+      })
     })
 
-    describe('and when instance options are defined', () => {
+    context('and when instance options are defined', () => {
       it('should override the global config options', async () => {
         const store = mockStore()
         const localBaseUrl = 'test-local-baseUrl'
@@ -277,7 +320,10 @@ describe('Duck', () => {
 
         await store.dispatch(duck.get(path))
 
-        expect(fetch).toHaveBeenCalledWith(`${localBaseUrl}${path}`, { method: 'GET' })
+        expect(fetch).toHaveBeenCalledWith(`${localBaseUrl}${path}`, {
+          method: 'GET',
+          headers: new Headers({})
+        })
       })
     })
   })

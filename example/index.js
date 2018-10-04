@@ -1,6 +1,6 @@
 /* eslint no-unused-expressions: 0 */
 
-import 'babel-polyfill'
+import '@babel/polyfill'
 import 'whatwg-fetch'
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -15,8 +15,6 @@ import SubBreeds from './pages/SubBreeds'
 
 import store from './store'
 
-const target = document.getElementById('root')
-
 injectGlobal`
   html {
     padding: 2rem 4rem;
@@ -25,6 +23,12 @@ injectGlobal`
     font-family: "Roboto", sans-serif;
   }
 `
+
+const root = document.querySelector('#root')
+
+if (!root) {
+  throw new Error('no root element')
+}
 
 ReactDOM.render(
   <Provider store={store}>
@@ -35,5 +39,5 @@ ReactDOM.render(
       </Switch>
     </Router>
   </Provider>,
-  target
+  root
 )
