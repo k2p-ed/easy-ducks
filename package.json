@@ -12,9 +12,8 @@
   "main": "lib/easy-ducks.cjs.js",
   "module": "lib/easy-ducks.esm.js",
   "scripts": {
-    "build": "rimraf lib && rollup -c && yarn copy-source",
+    "build": "rimraf lib && rollup -c",
     "ci": "yarn test && yarn lint && yarn flow check",
-    "copy-source": "cp src/index.js lib/easy-ducks.cjs.js.flow && cp src/index.js lib/easy-ducks.esm.js.flow",
     "lint": "eslint src",
     "precommit": "yarn ci",
     "prepublish": "yarn build",
